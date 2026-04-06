@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { collections } from './content';
 import AuthButton from '../components/AuthButton';
 import DailyQuote from '../components/DailyQuote';
+import ActivityCalendar from '../components/ActivityCalendar';
 
 const storageKeys = {
   collectionId: 'shri-harivansh.collectionId',
@@ -56,6 +57,8 @@ export default function HomePage() {
       <main className="layout">
         {/* Daily Quote — hero position */}
         <DailyQuote />
+
+        <ActivityCalendar />
 
         <section className="panel hero">
           <div className="hero-content">

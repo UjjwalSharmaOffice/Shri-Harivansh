@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { collections } from '../content';
 import AuthButton from '../../components/AuthButton';
+import { auth } from '../../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { syncProgressToFirebase, getProgressFromFirebase } from '../../lib/db';
 
 const storageKeys = {
   collectionId: 'shri-harivansh.collectionId',
@@ -52,6 +55,7 @@ export default function ReaderPage() {
   );
 
   const [isReady, setIsReady] = useState(false);
+  const [user, setUser] = useState(null);
   const [sectionId, setSectionId] = useState(null);
   const [verseNumber, setVerseNumber] = useState(1);
   const [fontSize, setFontSize] = useState(20);
@@ -92,6 +96,29 @@ export default function ReaderPage() {
     localStorage.setItem(storageKeys.textAlign, textAlign);
     localStorage.setItem(storageKeys.darkMode, String(isDarkMode));
   }, [collectionId, fontSize, textAlign, isDarkMode, isReady, sectionId, verseNumber, collection.id]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser && isReady) {
+        const fbData = await getProgressFromFirebase(currentUser, collection.id);
+        if (fbData && fbData.sectionId && fbData.verseNumber) {
+          setSectionId(fbData.sectionId);
+          setVerseNumber(fbData.verseNumber);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, [isReady, collection.id]);
+
+  // Sync to Firebase
+  useEffect(() => {
+    if (!isReady || !user || !sectionId) return;
+    const timeoutMsg = setTimeout(() => {
+      syncProgressToFirebase(user, collection.id, sectionId, verseNumber);
+    }, 1500); // 1.5s debounce
+    return () => clearTimeout(timeoutMsg);
+  }, [user, collection.id, sectionId, verseNumber, isReady]);
 
   const section = useMemo(
     () => collection.sections.find((item) => item.id === sectionId) || collection.sections[0],
