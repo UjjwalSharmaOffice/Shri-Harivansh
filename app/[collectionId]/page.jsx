@@ -18,6 +18,24 @@ const storageKeys = {
 const ALIGN_OPTIONS = ['left', 'center', 'right'];
 const ALIGN_LABELS = { left: '⫷', center: '⫿', right: '⫸' };
 
+function Expandable({ label, defaultOpen = false, children }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className={`expandable ${open ? 'expanded' : ''}`}>
+      <button
+        type="button"
+        className="expandable-header"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+      >
+        <span className="expandable-label">{label}</span>
+        <span className="expandable-icon">{open ? '▾' : '▸'}</span>
+      </button>
+      {open && <div className="expandable-body">{children}</div>}
+    </div>
+  );
+}
+
 export default function ReaderPage() {
   const params = useParams();
   const router = useRouter();
@@ -120,6 +138,9 @@ export default function ReaderPage() {
     }
   }
 
+  const hasYouTube = collection.youtubeIds && collection.youtubeIds.length > 0;
+  const hasAudio = section.audioUrl && section.audioUrl.length > 0;
+
   if (!isReady) return null;
 
   return (
@@ -200,9 +221,36 @@ export default function ReaderPage() {
             <span>{verse.number} of {collection.totalVerses}</span>
           </div>
 
-          <div className="audio-wrap">
-            <audio controls preload="none" src={section.audioUrl} key={section.audioUrl} />
-          </div>
+          {/* YouTube Video — expandable */}
+          {hasYouTube && (
+            <Expandable label="▶  Watch Video" defaultOpen={false}>
+              <div className="youtube-wrap">
+                {collection.youtubeIds.map(id => (
+                  <iframe
+                    key={id}
+                    src={`https://www.youtube.com/embed/${id}`}
+                    title={collection.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ))}
+              </div>
+            </Expandable>
+          )}
+
+          {/* Audio player — expandable if video present, always shown otherwise */}
+          {hasAudio && hasYouTube && (
+            <Expandable label="🔊  Listen Audio" defaultOpen={false}>
+              <div className="audio-wrap">
+                <audio controls preload="none" src={section.audioUrl} key={section.audioUrl} />
+              </div>
+            </Expandable>
+          )}
+          {hasAudio && !hasYouTube && (
+            <div className="audio-wrap">
+              <audio controls preload="none" src={section.audioUrl} key={section.audioUrl} />
+            </div>
+          )}
 
           <article className="verse-card">
             <p className="verse-number">Verse {verse.number}</p>
@@ -213,16 +261,14 @@ export default function ReaderPage() {
                   <div className="verse-text">{verse.hindiShloka}</div>
                 </div>
                 {verse.englishShloka && (
-                  <div className="rsn-section rsn-english">
-                    <p className="rsn-label">Transliteration</p>
+                  <Expandable label="Transliteration" defaultOpen={false}>
                     <div className="verse-text rsn-translit">{verse.englishShloka}</div>
-                  </div>
+                  </Expandable>
                 )}
                 {verse.vyakhya && (
-                  <div className="rsn-section rsn-vyakhya">
-                    <p className="rsn-label">व्याख्या</p>
-                    <div className="verse-text">{verse.vyakhya}</div>
-                  </div>
+                  <Expandable label="व्याख्या — Meaning" defaultOpen={true}>
+                    <div className="rsn-vyakhya-text verse-text">{verse.vyakhya}</div>
+                  </Expandable>
                 )}
               </div>
             ) : (

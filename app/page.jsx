@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { collections } from './content';
 import AuthButton from '../components/AuthButton';
+import DailyQuote from '../components/DailyQuote';
 
 const storageKeys = {
   collectionId: 'shri-harivansh.collectionId',
@@ -53,6 +54,9 @@ export default function HomePage() {
       </header>
 
       <main className="layout">
+        {/* Daily Quote — hero position */}
+        <DailyQuote />
+
         <section className="panel hero">
           <div className="hero-content">
             <p className="eyebrow">Sacred Texts</p>
