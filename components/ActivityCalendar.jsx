@@ -19,22 +19,24 @@ const DEFAULT_COLORS = [
 export default function ActivityCalendar() {
   const [user, setUser] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  
-  // Instant load from cache to prevent UI delay
-  const [markers, setMarkers] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const cached = localStorage.getItem('shri-harivansh.calendar-markers');
-      if (cached) {
-        try { return JSON.parse(cached); } catch(e) {}
-      }
-    }
-    return {};
-  });
-  
+  const [markers, setMarkers] = useState({});
   const [markerColors, setMarkerColors] = useState(DEFAULT_COLORS);
 
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(null);
+
+  // Instantly load local cache on client mount (bypasses Next.js SSR hydration limits)
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem('shri-harivansh.calendar-markers');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Object.keys(parsed).length > 0) {
+          setMarkers(prev => ({ ...parsed, ...prev })); // Inject instantly
+        }
+      }
+    } catch(e) {}
+  }, []);
 
   // Legend editing state
   const [editingLegendId, setEditingLegendId] = useState(null);
@@ -175,7 +177,15 @@ export default function ActivityCalendar() {
       <div className="panel-header reader-header calendar-header-top">
         <div>
           <p className="eyebrow">Personal Tracker</p>
-          <h3>My Reading Calendar</h3>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            My Reading Calendar
+            {loading && (
+              <span className="sync-badge" style={{ fontSize: '0.65rem', fontWeight: '500', padding: '3px 10px', background: 'var(--accent-subtle)', color: 'var(--accent)', borderRadius: '12px', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                <span className="sync-dot" style={{ display: 'inline-block', width: '6px', height: '6px', background: 'var(--accent)', borderRadius: '50%', marginRight: '4px', animation: 'glowPulse 1.5s infinite' }}></span>
+                Syncing
+              </span>
+            )}
+          </h3>
           <p className="panel-header-subtitle">Tap a date to assign a colored marker, or change a month.</p>
         </div>
         <div className="calendar-nav" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', width: '100%', marginBottom: '16px' }}>
