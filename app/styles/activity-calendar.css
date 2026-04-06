@@ -214,40 +214,54 @@
 
 .calendar-legend-list {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.legend-item-wrap {
+  display: inline-flex;
+}
+
+.legend-item-wrap:has(.legend-editor) {
+  width: 100%; /* Expand full width when editing is active */
 }
 
 .legend-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  padding: 6px 14px;
+  background: var(--bg-body);
+  border: 1px solid var(--border-primary);
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.legend-item:hover {
+  background: var(--bg-subtle);
+  border-color: var(--border-accent);
+  transform: translateY(-1px);
 }
 
 .legend-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  cursor: text;
-  padding: 4px 6px;
-  border-radius: var(--radius-sm);
-  transition: background-color 0.2s, color 0.2s;
   display: flex;
   align-items: center;
   gap: 6px;
+  padding: 0;
 }
 
 .legend-label .edit-icon {
   opacity: 0;
   font-size: 0.75rem;
   transition: opacity 0.2s;
+  color: var(--text-tertiary);
 }
 
-.legend-label:hover {
-  background-color: var(--bg-subtle);
-  color: var(--text-primary);
-}
-
-.legend-label:hover .edit-icon {
+.legend-item:hover .edit-icon {
   opacity: 1;
 }
 
@@ -321,12 +335,24 @@
 }
 
 .add-color-btn {
-  width: 100%;
-  text-align: left;
-  padding: 8px;
-  font-size: 0.85rem;
-  opacity: 0.8;
-  margin-top: 8px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  border-radius: 20px;
+  border: 1px dashed var(--border-primary);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: all var(--transition-fast);
+  margin: 0;
+  height: max-content;
+}
+
+.add-color-btn:hover {
+  background: var(--bg-body);
+  border-color: var(--border-accent);
+  color: var(--text-primary);
 }
 
 .tiny-btn {

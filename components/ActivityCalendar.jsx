@@ -369,9 +369,9 @@ export default function ActivityCalendar() {
         <div className="calendar-legend-box">
           <h4>Customize Markers</h4>
           <p className="calendar-legend-hint">Define meanings or colors.</p>
-          <div className="calendar-legend-list">
+          <div className="calendar-legend-list" style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', gap: '8px', alignItems: 'center' }}>
             {markerColors.map(c => (
-              <div key={c.id} className="legend-item-wrap">
+              <div key={c.id} className="legend-item-wrap" style={{ display: 'inline-flex', flexShrink: 0, width: editingLegendId === c.id ? '100%' : 'auto' }}>
                 {editingLegendId === c.id ? (
                   <div className="legend-editor">
                     <div className="legend-editor-top">
@@ -408,17 +408,18 @@ export default function ActivityCalendar() {
                       setEditLegendText(c.label);
                       setEditLegendHex(c.color);
                     }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'var(--bg-body)', border: '1px solid var(--border-primary)', borderRadius: '24px', cursor: 'pointer', boxShadow: 'var(--shadow-xs)' }}
                   >
-                    <span className="color-circle" style={{ backgroundColor: c.color }}></span>
-                    <span className="legend-label">
-                      {c.label} <span className="edit-icon">✎</span>
+                    <span className="color-circle" style={{ backgroundColor: c.color, width: '12px', height: '12px', borderRadius: '50%' }}></span>
+                    <span className="legend-label" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      {c.label} <span className="edit-icon" style={{ fontSize: '0.7rem', opacity: 0.6, marginLeft: '4px' }}>✎</span>
                     </span>
                   </div>
                 )}
               </div>
             ))}
 
-            <button className="ghost-btn add-color-btn" onClick={handleAddColor}>
+            <button className="ghost-btn add-color-btn" onClick={handleAddColor} style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 14px', borderRadius: '24px', border: '1px dashed var(--border-primary)', fontSize: '0.8rem', height: 'max-content' }}>
               + Add Marker
             </button>
           </div>
