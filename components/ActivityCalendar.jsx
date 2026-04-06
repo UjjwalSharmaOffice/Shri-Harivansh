@@ -81,19 +81,40 @@ export default function ActivityCalendar() {
     if (!selectedDate) return;
     const dateStr = format(selectedDate, 'yyyy-MM-dd');
     
+    let newColorsArray = [];
+
     // Optimistic UI update
     setMarkers(prev => {
       const next = { ...prev };
+      let currentColors = next[dateStr] || [];
+      if (!Array.isArray(currentColors)) currentColors = [currentColors];
+
       if (colorId === 'clear') {
         delete next[dateStr];
+        newColorsArray = [];
       } else {
-        next[dateStr] = colorId;
+        if (currentColors.includes(colorId)) {
+          // Remove it
+          newColorsArray = currentColors.filter(id => id !== colorId);
+        } else {
+          // Add it
+          newColorsArray = [...currentColors, colorId];
+        }
+        
+        if (newColorsArray.length === 0) {
+          delete next[dateStr];
+        } else {
+          next[dateStr] = newColorsArray;
+        }
       }
       return next;
     });
-    setSelectedDate(null);
+    
+    if (colorId === 'clear') {
+       setSelectedDate(null);
+    }
 
-    await setCalendarMarker(user, dateStr, colorId);
+    await setCalendarMarker(user, dateStr, newColorsArray);
   };
 
   const handleLegendSave = async (id) => {
@@ -191,8 +212,9 @@ export default function ActivityCalendar() {
                   const dateStr = format(day, 'yyyy-MM-dd');
                   const isCurrentMonth = isSameMonth(day, monthStart);
                   const isTodayDate = isToday(day);
-                  const markerId = markers[dateStr];
-                  const markerColor = getColorHex(markerId);
+                  let markerIds = markers[dateStr] || [];
+                  if (!Array.isArray(markerIds)) markerIds = [markerIds]; // Legacy safe fallback
+                  const presentMarkers = markerIds.filter(id => id !== 'clear');
                   
                   cells.push(
                     <div 
@@ -207,30 +229,45 @@ export default function ActivityCalendar() {
                       }}
                     >
                       <span className="calendar-day-number">{format(day, 'd')}</span>
-                      {markerId && markerId !== 'clear' && markerColor !== 'transparent' && (
-                        <div className="calendar-marker-dot" style={{ backgroundColor: markerColor }} />
+                      
+                      {/* Multi-marker display container */}
+                      {presentMarkers.length > 0 && (
+                        <div className="calendar-multi-markers" style={{ position: 'absolute', bottom: '8px', left: 0, right: 0, display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap', padding: '0 4px' }}>
+                          {presentMarkers.map(id => {
+                            const markerColor = getColorHex(id);
+                            if (markerColor === 'transparent') return null;
+                            return (
+                              <div key={id} style={{ backgroundColor: markerColor, width: '10px', height: '10px', borderRadius: '50%', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                            );
+                          })}
+                        </div>
                       )}
                       
                       {/* Color Picker Popup */}
                       {selectedDate && dateStr === format(selectedDate, 'yyyy-MM-dd') && (
                         <div className="calendar-color-picker" ref={popupRef}>
                           <p className="calendar-popup-title">{format(selectedDate, 'MMM d, yyyy')}</p>
-                          {markerColors.map(c => (
-                            <div 
-                              key={c.id} 
-                              className="color-option"
-                              onClick={(e) => { e.stopPropagation(); handleColorSelect(c.id); }}
-                            >
-                              <span className="color-circle" style={{ backgroundColor: c.color }}></span>
-                              {c.label}
-                            </div>
-                          ))}
+                          {markerColors.map(c => {
+                            const isSelected = presentMarkers.includes(c.id);
+                            return (
+                              <div 
+                                key={c.id} 
+                                className={`color-option ${isSelected ? 'selected' : ''}`}
+                                onClick={(e) => { e.stopPropagation(); handleColorSelect(c.id); }}
+                                style={{ backgroundColor: isSelected ? 'var(--bg-subtle)' : 'transparent' }}
+                              >
+                                <span className="color-circle" style={{ backgroundColor: c.color, border: isSelected ? '2px solid var(--text-primary)' : 'none' }}></span>
+                                {c.label}
+                                {isSelected && <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: 'var(--text-primary)' }}>✓</span>}
+                              </div>
+                            );
+                          })}
                           <div 
                               className="color-option"
                               onClick={(e) => { e.stopPropagation(); handleColorSelect('clear'); }}
                             >
                               <span className="color-circle clear-circle">✕</span>
-                              Remove Marker
+                              Remove All
                           </div>
                         </div>
                       )}
