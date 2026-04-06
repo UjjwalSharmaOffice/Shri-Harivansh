@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { collections } from '../content';
@@ -76,6 +76,7 @@ export default function ReaderPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [textAlign, setTextAlign] = useState('left');
   const [bookmarkedKeys, setBookmarkedKeys] = useState(new Set());
+  const wakeLockRef = useRef(null);
 
   useEffect(() => {
     let initialSectionId = collection.sections[0].id;
@@ -136,6 +137,38 @@ export default function ReaderPage() {
     }, 1500); // 1.5s debounce
     return () => clearTimeout(timeoutMsg);
   }, [user, collection.id, sectionId, verseNumber, isReady]);
+
+  // Smart Wake-Lock: Keep screen completely awake while reading
+  useEffect(() => {
+    if (!isReady) return;
+
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLockRef.current = await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {
+        // Ignored: feature unsupported on target browser or explicitly denied by system
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        requestWakeLock();
+      }
+    };
+
+    requestWakeLock();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release().catch(() => {});
+        wakeLockRef.current = null;
+      }
+    };
+  }, [isReady]);
 
   const section = useMemo(
     () => collection.sections.find((item) => item.id === sectionId) || collection.sections[0],
