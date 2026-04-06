@@ -601,6 +601,61 @@ p { margin: 0; }
 }
 
 
+/* ── RSN Verse Format ── */
+
+.rsn-verse {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.rsn-section {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.rsn-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.rsn-section:first-child {
+  padding-top: 0;
+}
+
+.rsn-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.7;
+  margin-bottom: 10px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.rsn-hindi .verse-text {
+  font-size: calc(var(--reader-font-size) * 1.05);
+  color: var(--text-primary);
+}
+
+.rsn-translit {
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-style: italic;
+  font-size: calc(var(--reader-font-size) * 0.88) !important;
+  color: var(--text-secondary) !important;
+  line-height: 2.0 !important;
+}
+
+.rsn-vyakhya .verse-text {
+  font-size: calc(var(--reader-font-size) * 0.92);
+  color: var(--text-secondary);
+  line-height: 1.9;
+  padding-left: 16px;
+  border-left: 2px solid var(--accent-medium);
+}
+
+
 /* ── Text Alignment Toggle ── */
 
 .align-toggle {

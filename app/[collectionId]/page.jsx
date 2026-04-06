@@ -206,7 +206,28 @@ export default function ReaderPage() {
 
           <article className="verse-card">
             <p className="verse-number">Verse {verse.number}</p>
-            <div className="verse-text" style={{ textAlign }}>{verse.text}</div>
+            {verse.hindiShloka ? (
+              <div className="rsn-verse" style={{ textAlign }}>
+                <div className="rsn-section rsn-hindi">
+                  <p className="rsn-label">श्लोक</p>
+                  <div className="verse-text">{verse.hindiShloka}</div>
+                </div>
+                {verse.englishShloka && (
+                  <div className="rsn-section rsn-english">
+                    <p className="rsn-label">Transliteration</p>
+                    <div className="verse-text rsn-translit">{verse.englishShloka}</div>
+                  </div>
+                )}
+                {verse.vyakhya && (
+                  <div className="rsn-section rsn-vyakhya">
+                    <p className="rsn-label">व्याख्या</p>
+                    <div className="verse-text">{verse.vyakhya}</div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="verse-text" style={{ textAlign }}>{verse.text}</div>
+            )}
           </article>
 
           <div className="reader-navigation">
