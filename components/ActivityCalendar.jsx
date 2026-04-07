@@ -8,12 +8,15 @@ import {
 import { getCalendarMarkers, setCalendarMarker, getCalendarColors, setCalendarColors, getCalendarStartDate, setCalendarStartDate } from '../lib/db';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import AuthButton from './AuthButton';
 
 const DEFAULT_COLORS = [
   { id: 'gold', label: 'Gold (Complete)', color: '#d4af37' },
-  { id: 'sage', label: 'Sage (Partial)', color: '#8ba888' },
-  { id: 'rose', label: 'Rose (Missed)', color: '#b07d7b' },
-  { id: 'slate', label: 'Slate (Note)', color: '#7a8b99' }
+  { id: 'sage', label: 'Shri Radha Sudha Nidhi', color: '#8ba888' },
+  { id: 'rose', label: 'Shri Radha Kripa Kataksh', color: '#b07d7b' },
+  { id: 'slate', label: 'Shri Hit Chaurasi Ji', color: '#7a8b99' },
+  { id: 'purple', label: 'Vrindavan Sat Leela', color: '#836b8e' },
+  { id: 'peach', label: 'Gopi Geet', color: '#d98d6c' }
 ];
 
 export default function ActivityCalendar() {
@@ -276,6 +279,18 @@ export default function ActivityCalendar() {
     setEditLegendHex('#666666');
     await setCalendarColors(user, newColors);
   };
+
+  if (!loading && !user) {
+    return (
+      <section className="panel grid-panel activity-panel" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '60px 20px', minHeight: '300px' }}>
+        <h3 style={{ fontSize: '1.4rem', marginBottom: '12px' }}>Track Your Daily Progress</h3>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', maxWidth: '400px', lineHeight: '1.5' }}>
+          Login to record your daily readings, track streaks, and mark custom gamification colors for different Granthas.
+        </p>
+        <AuthButton />
+      </section>
+    );
+  }
 
   return (
     <section className="panel grid-panel activity-panel">
