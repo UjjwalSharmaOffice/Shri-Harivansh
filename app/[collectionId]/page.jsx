@@ -215,6 +215,22 @@ export default function ReaderPage() {
     }
   }, { axis: 'x' });
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Prevent mapping arrow keys if user is typing in a text field
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        if (!isLastVerse) moveVerse(1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        if (!isFirstVerse) moveVerse(-1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFirstVerse, isLastVerse, verseIndex, sectionId, collection]);
+
   function moveVerse(direction) {
     const nextIndex = verseIndex + direction;
     if (nextIndex >= 0 && nextIndex < section.verses.length) {
@@ -546,11 +562,6 @@ export default function ReaderPage() {
                 ))}
               </div>
             </div>
-          </div>
-
-          <div className="reader-meta">
-            <span>Section {section.id}</span>
-            <span>{verse.number} of {collection.totalVerses}</span>
           </div>
 
           {/* YouTube Video — expandable */}
