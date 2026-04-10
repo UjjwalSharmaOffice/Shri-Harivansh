@@ -21,6 +21,7 @@ export default function HomePage() {
   const [lastCollectionId, setLastCollectionId] = useState(null);
   const [user, setUser] = useState(null);
   const [bookmarks, setBookmarks] = useState([]);
+  const [latestVideoId, setLatestVideoId] = useState(null);
 
   useEffect(() => {
     setIsDarkMode(
@@ -43,6 +44,13 @@ export default function HomePage() {
         setBookmarks([]);
       }
     });
+
+    fetch('/api/latest-video')
+      .then(res => res.json())
+      .then(data => {
+        if (data.videoId) setLatestVideoId(data.videoId);
+      })
+      .catch(console.error);
 
     return () => unsub();
   }, []);
@@ -194,6 +202,33 @@ export default function HomePage() {
                 </Link>
               );
             })}
+          </div>
+        </section>
+
+        <div className="section-divider">
+          <span>Watch</span>
+        </div>
+
+        <section className="panel grid-panel">
+          <div className="panel-header">
+            <p className="eyebrow">Bhajan Marg</p>
+            <h3>Latest Discourse</h3>
+          </div>
+          <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px' }}>
+            {latestVideoId ? (
+              <iframe 
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                src={`https://www.youtube.com/embed/${latestVideoId}`} 
+                title="Bhajan Marg Latest Video" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowFullScreen>
+              </iframe>
+            ) : (
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.1)' }}>
+                Loading video...
+              </div>
+            )}
           </div>
         </section>
       </main>
